@@ -1,6 +1,6 @@
 import Foundation
 
-enum RequestMethod: String {
+public enum RequestMethod: String {
     case Get = "GET"
     case Post = "POST"
     case Put = "PUT"
@@ -9,7 +9,7 @@ enum RequestMethod: String {
 }
 
 extension RequestMethod: CustomStringConvertible {
-    var description: String {
+    public var description: String {
         switch self {
         case .Get:
             return "GET"

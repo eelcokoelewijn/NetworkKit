@@ -1,6 +1,6 @@
 import Foundation
 
-struct Resource {
+public struct Resource {
     let request: Request
     
     init(request: Request) {
@@ -10,6 +10,6 @@ struct Resource {
 
 extension Resource: Equatable { }
 
-func ==(lhs: Resource, rhs: Resource) -> Bool {
+public func ==(lhs: Resource, rhs: Resource) -> Bool {
     return lhs.request == rhs.request
 }

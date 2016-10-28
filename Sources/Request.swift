@@ -1,8 +1,8 @@
 import Foundation
 
-typealias RequestHeader = [String: String]
+public typealias RequestHeader = [String: String]
 
-struct Request {
+public struct Request {
     let method: RequestMethod
     let url: URL
     let headers: RequestHeader?
@@ -18,7 +18,7 @@ struct Request {
 
 extension Request: Equatable { }
 
-func ==(lhs: Request, rhs: Request) -> Bool {
+public func ==(lhs: Request, rhs: Request) -> Bool {
     if let lheaders = lhs.headers,
         let rheaders = rhs.headers {
             return lheaders == rheaders &&

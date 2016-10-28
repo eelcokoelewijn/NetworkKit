@@ -1,25 +1,25 @@
 import Foundation
 
-typealias JSONDictionary = [String: AnyObject]
+public typealias JSONDictionary = [String: AnyObject]
 
-protocol JSONDecodable {
+public protocol JSONDecodable {
     init(json: JSONDictionary) throws
 }
 
-enum SerializationError: Error {
+public enum SerializationError: Error {
     case missing(String)
     case invalid(String, Any)
 }
 
-enum NetworkError: Error {
+public enum NetworkError: Error {
     case sendingFailed(String)
     case unknown
     case parseError
 }
 
-struct NetworkKit {
+public struct NetworkKit {
 
-    func load<Object: JSONDecodable>(resource: Resource, completion: @escaping ((Object?, NetworkError?) -> Void))  {
+    public func load<Object: JSONDecodable>(resource: Resource, completion: @escaping ((Object?, NetworkError?) -> Void))  {
         send(request: resource.request) { (response, error) in
             guard let response = response else {
                 completion(nil, error)
