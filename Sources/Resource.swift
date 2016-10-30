@@ -1,15 +1,20 @@
 import Foundation
 
-public struct Resource {
+public struct Resource<ResourceType> {
     let request: Request
+    let parse: (Data) -> ResourceType?
     
-    init(request: Request) {
+    public init(request: Request, parseJSON: @escaping (Any) -> ResourceType?) {
         self.request = request
+        self.parse = { data in
+            let json = try? JSONSerialization.jsonObject(with: data, options: [])
+            return json.flatMap(parseJSON)
+        }
     }
 }
 
 extension Resource: Equatable { }
 
-public func ==(lhs: Resource, rhs: Resource) -> Bool {
+public func ==<ResourceType>(lhs: Resource<ResourceType>, rhs: Resource<ResourceType>) -> Bool {
     return lhs.request == rhs.request
 }

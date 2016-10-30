@@ -1,89 +1,109 @@
 import XCTest
 @testable import NetworkKit
 
+// https://github.com/toddmotto/public-apis
+
 class NetworkKitTests: XCTestCase {
-    var sampleURL: URL!
-    var sampleHeaders: RequestHeader!
     var sampleRequest: Request!
-    var sampleResource: Resource!
-    var sampleAddress: Address!
+    var sampleResource: Resource<Name>!
+    var sampleMultiRequest: Request!
+    var sampleMultiResource: Resource<[Name]>!
     
     override func setUp() {
-        sampleURL = URL(string: "http://nu.nl")
-        sampleHeaders = ["X-Auth": "oAuth",
-                         "Bearer": "xxxxxxxxxxxxx"]
-        sampleRequest = Request(url: sampleURL, method: .Put, headers: sampleHeaders)
-        sampleResource = Resource(request: sampleRequest)
-        sampleAddress = Address(street: "a", number: 1, city: "b", zipcode: "1234aa", country: "d")
+        sampleRequest = Request(url: URL(string: "http://uinames.com/api/")!)
+        sampleResource = Resource(request: sampleRequest, parseJSON: { json in
+            guard let dic = json as? JSONDictionary else { return nil }
+            do {
+                return try Name(json: dic)
+            } catch {
+                print(error)
+            }
+            return nil
+        })
+        
+        sampleMultiRequest = Request(url: URL(string: "http://uinames.com/api/")!, params: ["amount": 10])
+        sampleMultiResource = Resource(request: sampleMultiRequest, parseJSON: { json in
+            guard let dic = json as? [JSONDictionary] else { return nil }
+            do {
+                return try dic.flatMap(Name.init)
+            } catch {
+                print(error)
+            }
+            return nil
+        })
     }
     
-    func testLoadResource() {
-        let exp = expectation(description: "Load address resource")
+    func testLoadSingleResource() {
+        let exp = expectation(description: "Load single name resource")
         let subject = NetworkKit()
     
-        subject.load(resource: sampleResource) { (a:Address?, e:NetworkError?) in
-            XCTAssertNotEqual(a, self.sampleAddress)
+        subject.load(resource: sampleResource) { a, e in
+            XCTAssertNotNil(a)
             exp.fulfill()
         }
         
-        waitForExpectations(timeout: 1, handler: nil)
+        waitForExpectations(timeout: 5, handler: nil)
+    }
+    
+    func testLoadMultipleResources() {
+        let exp = expectation(description: "Load 10 name resources")
+        let subject = NetworkKit()
+        
+        subject.load(resource: sampleMultiResource) { a, e in
+            XCTAssertNotNil(a)
+            XCTAssertEqual(a!.count, 10)
+            exp.fulfill()
+        }
+        
+        waitForExpectations(timeout: 5, handler: nil)
     }
     
     static var allTests : [(String, (NetworkKitTests) -> () throws -> Void)] {
         return [
-            ("testLoadResource", testLoadResource),
+            ("testLoadSingleResource", testLoadSingleResource),
+            ("testLoadMultipleResources", testLoadMultipleResources),
         ]
     }
 }
 
-struct Address {
-    let street: String
-    let number: Int
-    let city: String
-    let zipcode: String
-    let country: String
+struct Name {
+    let firstname: String
+    let surname: String
+    let gender: String
+    let region: String
 }
 
-extension Address: JSONDecodable {
+extension Name {
     init(json: JSONDictionary) throws {
-        guard let street = json["street"] as? String else {
-            throw SerializationError.missing("street")
-        }
-
-        guard let number = json["number"] as? Int else {
-            throw SerializationError.missing("number")
-        }
-
-        guard case (0...100) = number else {
-            throw SerializationError.invalid("number", number)
+        guard let firstname = json["name"] as? String else {
+            throw SerializationError.missing("firstname")
         }
         
-        guard let city = json["city"] as? String else {
-            throw SerializationError.missing("city")
+        guard let surname = json["surname"] as? String else {
+            throw SerializationError.missing("surname")
         }
 
-        guard let zipcode = json["zipcode"] as? String else {
-            throw SerializationError.missing("zipcode")
+        guard let gender = json["gender"] as? String else {
+            throw SerializationError.missing("gender")
         }
         
-        guard let country = json["country"] as? String else {
-            throw SerializationError.missing("country")
+        guard let region = json["region"] as? String else {
+            throw SerializationError.missing("region")
         }
 
-        self.street = street
-        self.city = city
-        self.number = number
-        self.zipcode = zipcode
-        self.country = country
+        self.firstname = firstname
+        self.surname = surname
+        self.gender = gender
+        self.region = region
     }
 }
 
-extension Address: Equatable { }
+extension Name: Equatable { }
 
-func ==(lhs: Address, rhs: Address) -> Bool {
-    return lhs.city == rhs.city &&
-        lhs.country == rhs.country &&
-        lhs.street == rhs.street &&
-        lhs.number == rhs.number &&
-        lhs.zipcode == rhs.zipcode
+func ==(lhs: Name, rhs: Name) -> Bool {
+    return lhs.firstname == rhs.firstname &&
+        lhs.surname == rhs.surname &&
+        lhs.gender == rhs.gender &&
+        lhs.region == rhs.region
 }
+
