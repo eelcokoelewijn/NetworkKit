@@ -79,6 +79,7 @@ extension Request {
         switch headers?["Content-Type"] {
         case .some("application/json"):
             return try? JSONSerialization.data(withJSONObject: params, options: [])
+        case .some("application/x-www-form-urlencoded"): fallthrough
         default:
             return createStringFromParams(params: params)?.data(using: .utf8)
         }
