@@ -19,26 +19,23 @@ public struct NetworkKit {
     
     public func load<ResourceType>(resource: Resource<ResourceType>,
                      completion: @escaping ((ResourceType?, NetworkError?) -> Void))  {
-        send(request: resource.request) { (data, error) in
-            guard let data = data else {
-                completion(nil, error)
-                return
-            }
-            completion(resource.parse(data), nil)            
-        }
-    }
-    
-    private func send(request: Request, completion: (@escaping (Data?, NetworkError?) -> Void)) {
-        URLSession.shared.dataTask(with: request.buildURLRequest()) { (data, response, error) in
-            guard let data = data else {
-                if let error = error {
+        send(request: resource.request) { (response) in
+            guard response.data != nil else {
+                if let error = response.error {
                     completion(nil, .sendingFailed(error.localizedDescription))
                 } else {
                     completion(nil, .unknown)
                 }
                 return
             }
-            completion(data, nil)
+            completion(resource.parse(response), nil)
+        }
+    }
+    
+    private func send(request: Request, completion: (@escaping (Response) -> Void)) {
+        URLSession.shared.dataTask(with: request.buildURLRequest()) { (data, response, error) in
+            let r = Response(data: data, httpResponse: response as? HTTPURLResponse, error: error)
+            completion(r)
         }.resume()
-    }    
+    }
 }

@@ -2,13 +2,20 @@ import Foundation
 
 public struct Resource<ResourceType> {
     let request: Request
-    let parse: (Data) -> ResourceType?
+    let parse: (Response) -> ResourceType?
     
-    public init(request: Request, parseJSON: @escaping (Any) -> ResourceType?) {
+    public init(request: Request, parseResponse: @escaping (Any) -> ResourceType?) {
         self.request = request
-        self.parse = { data in
-            let json = try? JSONSerialization.jsonObject(with: data, options: [])
-            return json.flatMap(parseJSON)
+        self.parse = { response in
+            guard let data = response.data else { return nil }
+            switch response.contentType {
+            case .applicationJSON:
+                let json = try? JSONSerialization.jsonObject(with: data, options: [])
+                return json.flatMap(parseResponse)
+            default:
+                let response = String(data: data, encoding: .utf8)
+                return response.flatMap(parseResponse)
+            }
         }
     }
 }

@@ -19,6 +19,7 @@ class RequestTests: XCTestCase {
         sampleRequestParamsStringEncoded = "extend=$User%5EProfile&page=3&search=swift%20url"
         sampleRequestParamsString = "extend=$User^Profile&page=3&search=swift url"
         sampleURLRequest = URLRequest(url: sampleURL)
+        sampleURLRequest.addValue(ContentType.applicationJSON.rawValue, forHTTPHeaderField: Header.contentType)
     }
     
     func testBuildingOfURLRequest() {
@@ -40,7 +41,10 @@ class RequestTests: XCTestCase {
     }
     
     func testBuildingOfPostURLRequestWithParams() {
-        let subject = Request(url: sampleURL, method: .post, params: sampleRequestParams)
+        let subject = Request(url: sampleURL,
+                              method: .post,
+                              headers: [Header.contentType: ContentType.applicationXWWWFormURLEncoded.rawValue],
+                              params: sampleRequestParams)
         let result = subject.buildURLRequest()
         
         let httpBodyString = String(data: result.httpBody!, encoding: .utf8)
@@ -50,7 +54,6 @@ class RequestTests: XCTestCase {
     func testBuildingOfPutURLRequestWithJSONContentTypeAndParams() {
         let subject = Request(url: sampleURL,
                               method: .put,
-                              headers: ["Content-Type":"application/json"],
                               params: sampleRequestParams)
         let result = subject.buildURLRequest()
         let httpBodyString = String(data: result.httpBody!, encoding: .utf8)
@@ -74,7 +77,7 @@ class RequestTests: XCTestCase {
     
     func testRequestWithAuthHeaders() {
         let subject = Request(url: sampleURL, headers: sampleHeaders)
-        XCTAssertEqual(subject.headers!, sampleHeaders)
+        XCTAssertEqual(subject.headers, sampleHeaders)
     }
     
     func testResourceWithRequest() {

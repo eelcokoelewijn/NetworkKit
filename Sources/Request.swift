@@ -6,13 +6,13 @@ public typealias RequestParams = [String: Any]
 public struct Request {
     let method: RequestMethod
     let url: URL
-    let headers: RequestHeader?
-    let params: RequestParams?
+    let headers: RequestHeader
+    let params: RequestParams
     
     public init(url: URL,
          method: RequestMethod = .get,
-         headers: RequestHeader? = nil,
-         params: RequestParams? = nil) {
+         headers: RequestHeader = [Header.contentType: ContentType.applicationJSON.rawValue],
+         params: RequestParams = Dictionary()) {
         self.url = url
         self.method = method
         self.headers = headers
@@ -40,10 +40,10 @@ extension Request {
             request.url = append(urlQueryItems: queryItems, toURL: request.url)
             return
         case .put: fallthrough
-        case .delete: fallthrough
         case .post:
             request.httpBody = getDataFromParams()
             return
+        case .delete: fallthrough    
         case .options: fallthrough
         case .head: fallthrough
         case .connect: fallthrough
@@ -53,7 +53,7 @@ extension Request {
     }
     
     private func addHeadersTo(request: inout URLRequest) {
-        guard let headers = headers else { return }
+        guard headers.keys.count > 0 else { return }
         for key in headers.keys {
             if let value = headers[key] {
                 request.addValue(value, forHTTPHeaderField: key)
@@ -68,18 +68,21 @@ extension Request {
     }
     
     private func createURLQueryItems() -> [URLQueryItem]? {
-        guard let params = params else { return nil }
+        guard params.keys.count > 0 else { return nil }
         return params.flatMap { key, value in
             return URLQueryItem(name: key, value: String(describing: value))
         }
     }
     
     private func getDataFromParams() -> Data? {
-        guard let params = params else { return nil }
-        switch headers?["Content-Type"] {
-        case .some("application/json"):
+        guard params.keys.count > 0,
+            let contentTypeValue = headers[Header.contentType],
+            let contentType = ContentType(rawValue: contentTypeValue)
+            else { return nil }
+        
+        switch contentType {
+        case .applicationJSON:
             return try? JSONSerialization.data(withJSONObject: params, options: [])
-        case .some("application/x-www-form-urlencoded"): fallthrough
         default:
             return createStringFromParams(params: params)?.data(using: .utf8)
         }
@@ -99,23 +102,7 @@ extension Request {
 extension Request: Equatable { }
 
 public func ==(lhs: Request, rhs: Request) -> Bool {
-    if let lheaders = lhs.headers,
-        let rheaders = rhs.headers {
-            return lheaders == rheaders &&
-                lhs.method == rhs.method &&
-                lhs.url == rhs.url
-    }
-    
-    if (lhs.headers == nil && rhs.headers != nil) ||
-        (lhs.headers != nil && rhs.headers == nil) {
-        return false
-    }
-    
-    if (lhs.params == nil && rhs.params != nil) ||
-        (lhs.params != nil && rhs.params == nil) {
-        return false
-    }
-    
     return lhs.method == rhs.method &&
-        lhs.url == rhs.url
+        lhs.url == rhs.url &&
+        lhs.headers == rhs.headers
 }
