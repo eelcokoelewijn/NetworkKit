@@ -13,22 +13,27 @@ public enum NetworkError: Error {
     case parseError
 }
 
+public enum Result<ResourceType> {
+    case Success(ResourceType?)
+    case Failure(Error)
+}
+
 public struct NetworkKit {
 
     public init() { }
     
     public func load<ResourceType>(resource: Resource<ResourceType>,
-                     completion: @escaping ((ResourceType?, NetworkError?) -> Void))  {
+                     completion: @escaping ((Result<ResourceType>) -> Void))  {
         send(request: resource.request) { (response) in
             guard response.data != nil else {
                 if let error = response.error {
-                    completion(nil, .sendingFailed(error.localizedDescription))
+                    completion(.Failure(NetworkError.sendingFailed(error.localizedDescription)))
                 } else {
-                    completion(nil, .unknown)
+                    completion(.Failure(NetworkError.unknown))
                 }
                 return
             }
-            completion(resource.parse(response), nil)
+            completion(.Success(resource.parse(response)))
         }
     }
     

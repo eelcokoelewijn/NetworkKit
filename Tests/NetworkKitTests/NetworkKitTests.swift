@@ -37,9 +37,11 @@ class NetworkKitTests: XCTestCase {
         let exp = expectation(description: "Load single name resource")
         let subject = NetworkKit()
     
-        subject.load(resource: sampleResource) { a, e in
-            XCTAssertNotNil(a)
-            exp.fulfill()
+        subject.load(resource: sampleResource) { r in
+            if case let Result.Success(value) = r {
+                XCTAssertNotNil(value)
+                exp.fulfill()
+            }
         }
         
         waitForExpectations(timeout: 5, handler: nil)
@@ -49,10 +51,12 @@ class NetworkKitTests: XCTestCase {
         let exp = expectation(description: "Load 10 name resources")
         let subject = NetworkKit()
         
-        subject.load(resource: sampleMultiResource) { a, e in
-            XCTAssertNotNil(a)
-            XCTAssertEqual(a!.count, 10)
-            exp.fulfill()
+        subject.load(resource: sampleMultiResource) { r in
+            if case let Result.Success(value) = r {
+                XCTAssertNotNil(value)
+                XCTAssertEqual(value!.count, 10)
+                exp.fulfill()
+            }
         }
         
         waitForExpectations(timeout: 5, handler: nil)

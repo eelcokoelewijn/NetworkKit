@@ -41,7 +41,7 @@ extension Request {
             return
         case .put: fallthrough
         case .post:
-            request.httpBody = getDataFromParams()
+            request.httpBody = convertParamsToData()
             return
         case .delete: fallthrough    
         case .options: fallthrough
@@ -54,10 +54,8 @@ extension Request {
     
     private func addHeadersTo(request: inout URLRequest) {
         guard headers.keys.count > 0 else { return }
-        for key in headers.keys {
-            if let value = headers[key] {
-                request.addValue(value, forHTTPHeaderField: key)
-            }
+        headers.forEach { key, value in
+            request.addValue(value, forHTTPHeaderField: key)
         }
     }
     
@@ -74,7 +72,7 @@ extension Request {
         }
     }
     
-    private func getDataFromParams() -> Data? {
+    private func convertParamsToData() -> Data? {
         guard params.keys.count > 0,
             let contentTypeValue = headers[Header.contentType],
             let contentType = ContentType(rawValue: contentTypeValue)
