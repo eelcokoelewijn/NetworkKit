@@ -14,8 +14,8 @@ public enum NetworkError: Error {
 }
 
 public enum Result<ResourceType> {
-    case Success(ResourceType?)
-    case Failure(Error)
+    case success(ResourceType)
+    case failure(Error)
 }
 
 public struct NetworkKit {
@@ -27,13 +27,17 @@ public struct NetworkKit {
         send(request: resource.request) { (response) in
             guard response.data != nil else {
                 if let error = response.error {
-                    completion(.Failure(NetworkError.sendingFailed(error.localizedDescription)))
+                    completion(.failure(NetworkError.sendingFailed(error.localizedDescription)))
                 } else {
-                    completion(.Failure(NetworkError.unknown))
+                    completion(.failure(NetworkError.unknown))
                 }
                 return
             }
-            completion(.Success(resource.parse(response)))
+            guard let result = resource.parse(response) else {
+                completion(.failure(NetworkError.parseError))
+                return
+            }
+            completion(.success(result))
         }
     }
     

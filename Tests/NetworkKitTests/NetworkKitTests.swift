@@ -38,7 +38,7 @@ class NetworkKitTests: XCTestCase {
         let subject = NetworkKit()
     
         subject.load(resource: sampleResource) { r in
-            if case let Result.Success(value) = r {
+            if case let .success(value) = r {
                 XCTAssertNotNil(value)
                 exp.fulfill()
             }
@@ -52,9 +52,9 @@ class NetworkKitTests: XCTestCase {
         let subject = NetworkKit()
         
         subject.load(resource: sampleMultiResource) { r in
-            if case let Result.Success(value) = r {
+            if case let .success(value) = r {
                 XCTAssertNotNil(value)
-                XCTAssertEqual(value!.count, 10)
+                XCTAssertEqual(value.count, 10)
                 exp.fulfill()
             }
         }
