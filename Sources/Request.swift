@@ -67,9 +67,13 @@ extension Request {
     
     private func createURLQueryItems() -> [URLQueryItem]? {
         guard params.keys.count > 0 else { return nil }
-        return params.flatMap { key, value in
-            return URLQueryItem(name: key, value: String(describing: value))
-        }
+        return params
+            .flatMap { key, value in
+                return URLQueryItem(name: key, value: String(describing: value))
+            }
+            .filter { qi in
+                return qi.value != nil
+            }
     }
     
     private func convertParamsToData() -> Data? {

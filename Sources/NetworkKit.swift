@@ -23,7 +23,7 @@ public struct NetworkKit {
     public init() { }
     
     public func load<ResourceType>(resource: Resource<ResourceType>,
-                     completion: @escaping ((Result<ResourceType>) -> Void))  {
+                     completion: @escaping (Result<ResourceType>) -> Void)  {
         send(request: resource.request) { (response) in
             guard response.data != nil else {
                 if let error = response.error {
@@ -41,7 +41,7 @@ public struct NetworkKit {
         }
     }
     
-    private func send(request: Request, completion: (@escaping (Response) -> Void)) {
+    private func send(request: Request, completion: @escaping (Response) -> Void) {
         URLSession.shared.dataTask(with: request.buildURLRequest()) { (data, response, error) in
             let r = Response(data: data, httpResponse: response as? HTTPURLResponse, error: error)
             completion(r)
