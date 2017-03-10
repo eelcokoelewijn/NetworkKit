@@ -60,7 +60,7 @@ extension Request {
     }
     
     private func append(urlQueryItems: [URLQueryItem]?, toURL: URL?) -> URL? {
-        var urlComponent = URLComponents(url: url, resolvingAgainstBaseURL: false)
+        var urlComponent = URLComponents(url: url, resolvingAgainstBaseURL: true)
         urlComponent?.queryItems = createURLQueryItems()
         return urlComponent?.url
     }
@@ -72,7 +72,8 @@ extension Request {
                 return URLQueryItem(name: key, value: String(describing: value))
             }
             .filter { qi in
-                return qi.value != nil
+                guard let v = qi.value else { return false }
+                return !v.isEmpty
             }
     }
     
