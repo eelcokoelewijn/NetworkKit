@@ -11,7 +11,7 @@ enum ContentType: String {
     case imageJPG = "image/jpg"
     case imageBMP = "image/bmp"
     case imageGIF = "image/gif"
-    
+
     init(withType type: String?) {
         switch type?.components(separatedBy: ";").first {
         case .some("application/json"):

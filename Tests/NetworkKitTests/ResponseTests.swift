@@ -14,16 +14,15 @@ class ResponseTests: XCTestCase {
                                              httpVersion: nil,
                                              headerFields: sampleContentTypeJSONHeader)
     }
-    
+
     func testIfResponseHasContentType() {
         let subject = Response(data: nil, httpResponse: sampleHTTPResponse, error: nil)
         XCTAssertEqual(subject.contentType, ContentType.applicationJSON)
     }
 
-    
-    static var allTests : [(String, (ResponseTests) -> () throws -> Void)] {
+    static var allTests: [(String, (ResponseTests) -> () throws -> Void)] {
         return [
-            ("testIfResponseHasCorrectContentType", testIfResponseHasContentType),
+            ("testIfResponseHasCorrectContentType", testIfResponseHasContentType)
         ]
     }
 }

@@ -7,7 +7,7 @@ struct Response {
     var contentType: ContentType {
         return ContentType(withType: self.header(withName: Header.contentType))
     }
-    
+
     private func header(withName name: String) -> String? {
         guard let header = httpResponse?.allHeaderFields[name] as? String else {
             return nil
