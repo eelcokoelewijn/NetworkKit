@@ -4,18 +4,11 @@ public struct Resource<ResourceType> {
     let request: Request
     let parse: (Response) -> ResourceType?
 
-    public init(request: Request, parseResponse: @escaping (Any) -> ResourceType?) {
+    public init(request: Request, parseResponse: @escaping (Data) -> ResourceType?) {
         self.request = request
         self.parse = { response in
             guard let data: Data = response.data else { return nil }
-            switch response.contentType {
-            case .applicationJSON:
-                let json: Any? = try? JSONSerialization.jsonObject(with: data, options: [])
-                return json.flatMap(parseResponse)
-            default:
-                let response: String? = String(data: data, encoding: .utf8)
-                return response.flatMap(parseResponse)
-            }
+            return parseResponse(data)
         }
     }
 }

@@ -11,7 +11,8 @@ class NetworkKitTests: XCTestCase {
 
     override func setUp() {
         sampleRequest = Request(url: URL(string: "http://uinames.com/api/")!)
-        sampleResource = Resource(request: sampleRequest, parseResponse: { json in
+        sampleResource = Resource(request: sampleRequest, parseResponse: { data in
+            let json: Any? = try? JSONSerialization.jsonObject(with: data, options: [])
             guard let dic = json as? JSONDictionary else { return nil }
             do {
                 return try Name(json: dic)
@@ -22,7 +23,8 @@ class NetworkKitTests: XCTestCase {
         })
 
         sampleMultiRequest = Request(url: URL(string: "http://uinames.com/api/")!, params: ["amount": 10])
-        sampleMultiResource = Resource(request: sampleMultiRequest, parseResponse: { json in
+        sampleMultiResource = Resource(request: sampleMultiRequest, parseResponse: { data in
+            let json: Any? = try? JSONSerialization.jsonObject(with: data, options: [])
             guard let dic = json as? [JSONDictionary] else { return nil }
             do {
                 return try dic.flatMap(Name.init)

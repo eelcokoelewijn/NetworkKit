@@ -58,6 +58,7 @@ class RequestTests: XCTestCase {
     func testBuildingOfPutURLRequestWithJSONContentTypeAndParams() {
         let subject = Request(url: sampleURL,
                               method: .put,
+                              headers: [Header.contentType: ContentType.applicationJSON.rawValue],
                               params: sampleRequestParams)
         let result = subject.build()
         let httpBodyString = String(data: result.httpBody!, encoding: .utf8)

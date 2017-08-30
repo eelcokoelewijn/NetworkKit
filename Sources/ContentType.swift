@@ -1,6 +1,6 @@
 import Foundation
 
-enum ContentType: String {
+public enum ContentType: String {
     case empty
     case applicationJSON = "application/json"
     case applicationXWWWFormURLEncoded = "application/x-www-form-urlencoded"
@@ -12,7 +12,7 @@ enum ContentType: String {
     case imageBMP = "image/bmp"
     case imageGIF = "image/gif"
 
-    init(withType type: String?) {
+    public init(withType type: String?) {
         switch type?.components(separatedBy: ";").first {
         case .some("application/json"):
             self = .applicationJSON

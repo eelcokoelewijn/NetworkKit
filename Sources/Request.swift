@@ -13,8 +13,8 @@ public struct Request {
 
     public init(url: URL,
                 method: RequestMethod = .get,
-                headers: RequestHeader = [Header.contentType: ContentType.applicationJSON.rawValue],
-                params: RequestParams = Dictionary()) {
+                headers: RequestHeader = [:],
+                params: RequestParams = [:]) {
         self.url = url
         self.method = method
         self.headers = headers
