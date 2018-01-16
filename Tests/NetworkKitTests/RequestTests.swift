@@ -61,8 +61,7 @@ class RequestTests: XCTestCase {
                               headers: [Header.contentType: ContentType.applicationJSON.rawValue],
                               params: sampleRequestParams)
         let result = subject.build()
-        let httpBodyString = String(data: result.httpBody!, encoding: .utf8)
-        XCTAssertNotNil(httpBodyString)
+        XCTAssertNil(result.httpBody)
     }
 
     func testRequestMethodStringRepresentation() {

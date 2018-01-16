@@ -57,14 +57,15 @@ extension URLRequest {
     }
 
     public func set(params: RequestParams,
-                    forMethod method: RequestMethod) -> URLRequest {
+                    forMethod method: RequestMethod,
+                    encoding: String.Encoding = .utf8) -> URLRequest {
         switch method {
         case .get:
             return self.set(queryString: params)
         case .put:
             return self
         case .post:
-            return self.set(body: params)
+            return self.set(body: params, encoding: encoding)
         case .delete:
             return self
         case .options:
@@ -85,9 +86,16 @@ extension URLRequest {
         return urq
     }
 
-    private func set(body: RequestParams) -> URLRequest {
+    private func set(body: RequestParams, encoding: String.Encoding) -> URLRequest {
         var urq = self
-        urq.httpBody = getData(fromParams: body, withHeaders: urq.allHTTPHeaderFields)
+        guard let headers: [String: String] = urq.allHTTPHeaderFields,
+            let headerValue: String = headers[Header.contentType],
+            let contentType: ContentType = ContentType(rawValue: headerValue) else {
+            return urq
+        }
+        urq.httpBody = getData(withParams: body,
+                               forContentType: contentType,
+                               encoding: encoding)
         return urq
     }
 
@@ -107,21 +115,19 @@ extension URLRequest {
             .filter { qitem in
                 guard let v: String = qitem.value else { return false }
                 return !v.isEmpty
-        }
+            }
     }
 
-    private func getData(fromParams params: RequestParams, withHeaders headers: RequestHeader?) -> Data? {
-        guard params.keys.count > 0,
-            let headers = headers,
-            let contentTypeValue = headers[Header.contentType],
-            let contentType = ContentType(rawValue: contentTypeValue)
-            else { return nil }
+    private func getData(withParams params: RequestParams,
+                         forContentType contentType: ContentType,
+                         encoding: String.Encoding) -> Data? {
+        guard params.keys.count > 0 else { return nil }
 
         switch contentType {
         case .applicationJSON:
             return try? JSONSerialization.data(withJSONObject: params, options: [])
         default:
-            return createStringFromParams(params: params)?.data(using: .utf8)
+            return createStringFromParams(params: params)?.data(using: encoding)
         }
     }
 
