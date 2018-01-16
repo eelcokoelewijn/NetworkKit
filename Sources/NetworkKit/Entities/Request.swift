@@ -61,13 +61,18 @@ extension URLRequest {
         switch method {
         case .get:
             return self.set(queryString: params)
-        case .put: fallthrough
+        case .put:
+            return self
         case .post:
             return self.set(body: params)
-        case .delete: fallthrough
-        case .options: fallthrough
-        case .head: fallthrough
-        case .connect: fallthrough
+        case .delete:
+            return self
+        case .options:
+            return self
+        case .head:
+            return self
+        case .connect:
+            return self
         case .trace:
             return self
         }

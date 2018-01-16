@@ -12,26 +12,12 @@ class NetworkKitTests: XCTestCase {
     override func setUp() {
         sampleRequest = Request(url: URL(string: "http://uinames.com/api/")!)
         sampleResource = Resource(request: sampleRequest, parseResponse: { data in
-            let json: Any? = try? JSONSerialization.jsonObject(with: data, options: [])
-            guard let dic = json as? JSONDictionary else { return nil }
-            do {
-                return try Name(json: dic)
-            } catch {
-                print(error)
-            }
-            return nil
+            return try? JSONDecoder().decode(Name.self, from: data)
         })
 
         sampleMultiRequest = Request(url: URL(string: "http://uinames.com/api/")!, params: ["amount": 10])
         sampleMultiResource = Resource(request: sampleMultiRequest, parseResponse: { data in
-            let json: Any? = try? JSONSerialization.jsonObject(with: data, options: [])
-            guard let dic = json as? [JSONDictionary] else { return nil }
-            do {
-                return try dic.flatMap(Name.init)
-            } catch {
-                print(error)
-            }
-            return nil
+            return try? JSONDecoder().decode([Name].self, from: data)
         })
     }
 
@@ -72,35 +58,17 @@ class NetworkKitTests: XCTestCase {
     }
 }
 
-struct Name {
+struct Name: Codable {
     let firstname: String
     let surname: String
     let gender: String
     let region: String
-}
 
-extension Name {
-    init(json: JSONDictionary) throws {
-        guard let firstname = json["name"] as? String else {
-            throw SerializationError.missing("firstname")
-        }
-
-        guard let surname = json["surname"] as? String else {
-            throw SerializationError.missing("surname")
-        }
-
-        guard let gender = json["gender"] as? String else {
-            throw SerializationError.missing("gender")
-        }
-
-        guard let region = json["region"] as? String else {
-            throw SerializationError.missing("region")
-        }
-
-        self.firstname = firstname
-        self.surname = surname
-        self.gender = gender
-        self.region = region
+    enum CodingKeys: String, CodingKey {
+        case firstname = "name"
+        case surname
+        case gender
+        case region
     }
 }
 

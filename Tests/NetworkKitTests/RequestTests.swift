@@ -135,7 +135,7 @@ class RequestTests: XCTestCase {
 
     func testResourceForEquatability() {
         let resourceA = Resource<String>(request: sampleRequest) { _ in nil }
-        let resourceB = Resource<String>(request: Request(url: URL(string:"http://google.com")!)) { _ in nil }
+        let resourceB = Resource<String>(request: Request(url: URL(string: "http://google.com")!)) { _ in nil }
         XCTAssertNotEqual(resourceA, resourceB)
     }
 
