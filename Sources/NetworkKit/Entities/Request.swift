@@ -109,7 +109,7 @@ extension URLRequest {
     private func createURLQueryItems(fromParams params: RequestParams) -> [URLQueryItem]? {
         guard params.keys.count > 0 else { return nil }
         return params
-            .flatMap { key, value in
+            .compactMap { key, value in
                 return URLQueryItem(name: key, value: String(describing: value))
             }
             .filter { qitem in
@@ -132,7 +132,7 @@ extension URLRequest {
     }
 
     private func createStringFromParams(params: RequestParams) -> String? {
-        let keyValue: [String] = params.flatMap { key, value in
+        let keyValue: [String] = params.compactMap { key, value in
             return "\(key)=\(String(describing: value))"
         }
         return keyValue.joined(separator: "&")

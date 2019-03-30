@@ -13,17 +13,12 @@ public enum NetworkError: Error {
     case parseError
 }
 
-public enum Result<ResourceType> {
-    case success(ResourceType)
-    case failure(Error)
-}
-
 public struct NetworkKit {
 
     public init() { }
 
     public func load<ResourceType>(resource: Resource<ResourceType>,
-                                   completion: @escaping (Result<ResourceType>) -> Void) {
+                                   completion: @escaping (Result<ResourceType, NetworkError>) -> Void) {
         send(request: resource.request) { (response) in
             guard response.data != nil else {
                 if let error: Error = response.error {

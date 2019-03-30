@@ -16,8 +16,8 @@ class RequestTests: XCTestCase {
                          "Bearer": "xxxxxxxxxxxxx"]
         sampleRequest = Request(url: sampleURL, method: .put, headers: sampleHeaders)
         sampleRequestParams = ["extend": "$User^Profile", "page": 3, "search": "swift url"]
-        sampleRequestParamsStringEncoded = "extend=$User%5EProfile&page=3&search=swift%20url"
-        sampleRequestParamsString = "extend=$User^Profile&page=3&search=swift url"
+        sampleRequestParamsStringEncoded = "search=swift%20url"
+        sampleRequestParamsString = "extend=$User^Profile"
         sampleURLRequest = URLRequest(url: sampleURL)
         sampleURLRequest.addValue(ContentType.applicationJSON.rawValue, forHTTPHeaderField: Header.contentType)
     }
@@ -41,7 +41,11 @@ class RequestTests: XCTestCase {
     func testBuildingOfGetURLRequestWithParams() {
         let subject = Request(url: sampleURL, params: sampleRequestParams)
         let result = subject.build()
-        XCTAssertEqual(result.url?.query, sampleRequestParamsStringEncoded)
+        guard let query = result.url?.query else {
+            XCTFail("Failed to create url request")
+            return
+        }
+        XCTAssertTrue(query.contains(sampleRequestParamsStringEncoded), "Query parameters are not correct encoded")
     }
 
     func testBuildingOfPostURLRequestWithParams() {
@@ -51,8 +55,11 @@ class RequestTests: XCTestCase {
                               params: sampleRequestParams)
         let result = subject.build()
 
-        let httpBodyString = String(data: result.httpBody!, encoding: .utf8)
-        XCTAssertEqual(httpBodyString, sampleRequestParamsString)
+        guard let httpBodyString = String(data: result.httpBody!, encoding: .utf8) else {
+            XCTFail("Failed to decode http body")
+            return
+        }
+        XCTAssertTrue(httpBodyString.contains(sampleRequestParamsString), "Http body parameters are not correct encoded")
     }
 
     func testBuildingOfPutURLRequestWithJSONContentTypeAndParams() {
