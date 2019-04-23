@@ -1,10 +1,9 @@
 import XCTest
 @testable import NetworkKit
 
-class RequestTests: XCTestCase {
+class RequestBuilderTests: XCTestCase {
     var sampleURL: URL!
     var sampleHeaders: RequestHeader!
-    var sampleRequest: Request!
     var sampleURLRequest: URLRequest!
     var sampleRequestParams: RequestParams!
     var sampleRequestParamsStringEncoded: String!
@@ -14,7 +13,6 @@ class RequestTests: XCTestCase {
         sampleURL = URL(string: "http://nu.nl")!
         sampleHeaders = ["X-Auth": "oAuth",
                          "Bearer": "xxxxxxxxxxxxx"]
-        sampleRequest = Request(url: sampleURL, method: .put, headers: sampleHeaders)
         sampleRequestParams = ["extend": "$User^Profile", "page": 3, "search": "swift url"]
         sampleRequestParamsStringEncoded = "search=swift%20url"
         sampleRequestParamsString = "extend=$User^Profile"
@@ -23,8 +21,9 @@ class RequestTests: XCTestCase {
     }
 
     func testBuildingOfURLRequest() {
-        let subject: Request = Request(url: sampleURL,
-                                       headers: [Header.contentType: ContentType.applicationJSON.rawValue])
+        let subject = RequestBuilder(url: sampleURL)
+            .headers([Header.contentType: ContentType.applicationJSON.rawValue])
+
         let result: URLRequest = subject.build()
         XCTAssertEqual(result.url, sampleURLRequest.url)
         XCTAssertEqual(result.httpBody, sampleURLRequest.httpBody)
@@ -33,13 +32,15 @@ class RequestTests: XCTestCase {
     }
 
     func testBuildingOfURLRequestWithHeaders() {
-        let subject = Request(url: sampleURL, headers: sampleHeaders)
+        let subject = RequestBuilder(url: sampleURL)
+            .headers(sampleHeaders)
         let result = subject.build()
         XCTAssertEqual(result.allHTTPHeaderFields!, sampleHeaders)
     }
 
     func testBuildingOfGetURLRequestWithParams() {
-        let subject = Request(url: sampleURL, params: sampleRequestParams)
+        let subject = RequestBuilder(url: sampleURL)
+            .parameters(sampleRequestParams)
         let result = subject.build()
         guard let query = result.url?.query else {
             XCTFail("Failed to create url request")
@@ -49,12 +50,12 @@ class RequestTests: XCTestCase {
     }
 
     func testBuildingOfPostURLRequestWithParams() {
-        let subject = Request(url: sampleURL,
-                              method: .post,
-                              headers: [Header.contentType: ContentType.applicationXWWWFormURLEncoded.rawValue],
-                              params: sampleRequestParams)
-        let result = subject.build()
+        let subject = RequestBuilder(url: sampleURL)
+            .method(.post)
+            .headers([Header.contentType: ContentType.applicationXWWWFormURLEncoded.rawValue])
+            .body(sampleRequestParams, withContentType: .applicationXWWWFormURLEncoded)
 
+        let result = subject.build()
         guard let httpBodyString = String(data: result.httpBody!, encoding: .utf8) else {
             XCTFail("Failed to decode http body")
             return
@@ -63,10 +64,11 @@ class RequestTests: XCTestCase {
     }
 
     func testBuildingOfPutURLRequestWithJSONContentTypeAndParams() {
-        let subject = Request(url: sampleURL,
-                              method: .put,
-                              headers: [Header.contentType: ContentType.applicationJSON.rawValue],
-                              params: sampleRequestParams)
+        let subject = RequestBuilder(url: sampleURL)
+            .method(.put)
+            .headers([Header.contentType: ContentType.applicationJSON.rawValue])
+            .parameters(sampleRequestParams)
+
         let result = subject.build()
         XCTAssertNil(result.httpBody)
     }
@@ -77,75 +79,79 @@ class RequestTests: XCTestCase {
     }
 
     func testRequestWithUrl() {
-        let subject = Request(url: sampleURL)
+        let subject = RequestBuilder(url: sampleURL).build()
         XCTAssertEqual(subject.url, sampleURL)
     }
 
     func testRequestWithPostMethod() {
-        let subject = Request(url: sampleURL, method: .post)
-        XCTAssertEqual(subject.method, .post)
+        let subject = RequestBuilder(url: sampleURL)
+            .method(.post)
+            .build()
+        XCTAssertEqual(subject.httpMethod, RequestMethod.post.rawValue)
     }
 
     func testRequestWithAuthHeaders() {
-        let subject = Request(url: sampleURL, headers: sampleHeaders)
-        XCTAssertEqual(subject.headers, sampleHeaders)
+        let subject = RequestBuilder(url: sampleURL)
+            .headers(sampleHeaders)
+            .build()
+        XCTAssertEqual(subject.allHTTPHeaderFields, sampleHeaders)
     }
 
     func testResourceWithRequest() {
-        let subject = Resource<String>(request: sampleRequest) { _ in return nil }
+        let subject = Resource<String>(request: sampleURLRequest) { _ in return nil }
 
-        XCTAssertEqual(subject.request, sampleRequest)
+        XCTAssertEqual(subject.request, sampleURLRequest)
     }
 
     func testRequestForNotEquatability() {
-        let subjectA = Request(url: sampleURL, headers: ["A": "B"])
-        let subjectB = Request(url: sampleURL)
+        let subjectA = RequestBuilder(url: sampleURL).headers(["A": "B"]).build()
+        let subjectB = RequestBuilder(url: sampleURL).build()
 
         XCTAssertNotEqual(subjectA, subjectB)
     }
 
     func testRequestForEquatabilityWithHeaders() {
-        let subjectA = Request(url: sampleURL, headers: ["A": "B"])
-        let subjectB = Request(url: sampleURL, headers: ["A": "B"])
+        let subjectA = RequestBuilder(url: sampleURL).headers(["A": "B"]).build()
+        let subjectB = RequestBuilder(url: sampleURL).headers(["A": "B"]).build()
 
         XCTAssertEqual(subjectA, subjectB)
     }
 
     func testRequestForEquatabilityWithoutHeaders() {
-        let subjectA = Request(url: sampleURL, params: ["A": "B"])
-        let subjectB = Request(url: sampleURL, params: ["A": "B"])
+        let subjectA = RequestBuilder(url: sampleURL).parameters(["A": "B"]).build()
+        let subjectB = RequestBuilder(url: sampleURL).parameters(["A": "B"]).build()
 
         XCTAssertEqual(subjectA, subjectB)
     }
 
     func testRequestForEquatabilityWithParams() {
-        let subjectA = Request(url: sampleURL, params: ["A": "B"])
-        let subjectB = Request(url: sampleURL, params: ["A": "B"])
+        let subjectA = RequestBuilder(url: sampleURL).parameters(["A": "B"]).build()
+        let subjectB = RequestBuilder(url: sampleURL).parameters(["A": "B"]).build()
 
         XCTAssertEqual(subjectA, subjectB)
     }
 
     func testRequestForEquatabilityWithoutParams() {
-        let subjectA = Request(url: sampleURL, headers: ["A": "B"])
-        let subjectB = Request(url: sampleURL, headers: ["A": "B"])
+        let subjectA = RequestBuilder(url: sampleURL).headers(["A": "B"]).build()
+        let subjectB = RequestBuilder(url: sampleURL).headers(["A": "B"]).build()
 
         XCTAssertEqual(subjectA, subjectB)
     }
 
     func testRequestForEquatabilityWithParamsAndHeaders() {
-        let subjectA = Request(url: sampleURL, headers: ["A": "B"], params: ["S": "D"])
-        let subjectB = Request(url: sampleURL, headers: ["A": "B"], params: ["S": "D"])
+        let subjectA = RequestBuilder(url: sampleURL).headers(["A": "B"]).parameters(["S": "D"]).build()
+        let subjectB = RequestBuilder(url: sampleURL).headers(["A": "B"]).parameters(["S": "D"]).build()
 
         XCTAssertEqual(subjectA, subjectB)
     }
 
     func testResourceForEquatability() {
-        let resourceA = Resource<String>(request: sampleRequest) { _ in nil }
-        let resourceB = Resource<String>(request: Request(url: URL(string: "http://google.com")!)) { _ in nil }
+        let resourceA = Resource<String>(request: sampleURLRequest) { _ in nil }
+        let resourceB = Resource<String>(request: URLRequest(url: URL(string: "http://google.com")!)) { _ in nil }
         XCTAssertNotEqual(resourceA, resourceB)
     }
 
-    static var allTests: [(String, (RequestTests) -> () throws -> Void)] {
+    static var allTests: [(String, (RequestBuilderTests) -> () throws -> Void)] {
         return [
             ("testRequestWithUrl", testRequestWithUrl),
             ("testRequestMethodStringRepresentation", testRequestMethodStringRepresentation),

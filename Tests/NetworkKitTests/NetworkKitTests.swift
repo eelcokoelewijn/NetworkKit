@@ -4,18 +4,18 @@ import XCTest
 // https://github.com/toddmotto/public-apis
 
 class NetworkKitTests: XCTestCase {
-    var sampleRequest: Request!
+    var sampleRequest: URLRequest!
     var sampleResource: Resource<Name>!
-    var sampleMultiRequest: Request!
+    var sampleMultiRequest: URLRequest!
     var sampleMultiResource: Resource<[Name]>!
 
     override func setUp() {
-        sampleRequest = Request(url: URL(string: "http://uinames.com/api/")!)
+        sampleRequest = RequestBuilder(url: URL(string: "http://uinames.com/api/")!).build()
         sampleResource = Resource(request: sampleRequest, parseResponse: { data in
             return try? JSONDecoder().decode(Name.self, from: data)
         })
 
-        sampleMultiRequest = Request(url: URL(string: "http://uinames.com/api/")!, params: ["amount": 10])
+        sampleMultiRequest = RequestBuilder(url: URL(string: "http://uinames.com/api/")!).parameters(["amount": 10]).build()
         sampleMultiResource = Resource(request: sampleMultiRequest, parseResponse: { data in
             return try? JSONDecoder().decode([Name].self, from: data)
         })

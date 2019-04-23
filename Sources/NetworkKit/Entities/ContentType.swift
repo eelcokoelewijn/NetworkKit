@@ -1,6 +1,6 @@
 import Foundation
 
-public enum ContentType: String {
+public enum ContentType: String, Equatable {
     case empty
     case applicationJSON = "application/json"
     case applicationXWWWFormURLEncoded = "application/x-www-form-urlencoded"

@@ -36,8 +36,8 @@ public struct NetworkKit {
         }
     }
 
-    private func send(request: Request, completion: @escaping (Response) -> Void) {
-        URLSession.shared.dataTask(with: request.build()) { (data, response, error) in
+    private func send(request: URLRequest, completion: @escaping (Response) -> Void) {
+        URLSession.shared.dataTask(with: request) { (data, response, error) in
             let r: Response = Response(data: data, httpResponse: response as? HTTPURLResponse, error: error)
             completion(r)
         }.resume()

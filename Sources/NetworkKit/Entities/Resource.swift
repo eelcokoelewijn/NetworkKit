@@ -1,10 +1,10 @@
 import Foundation
 
-public struct Resource<ResourceType> {
-    let request: Request
+public struct Resource<ResourceType: Equatable>{
+    let request: URLRequest
     let parse: (Response) -> ResourceType?
 
-    public init(request: Request, parseResponse: @escaping (Data) -> ResourceType?) {
+    public init(request: URLRequest, parseResponse: @escaping (Data) -> ResourceType?) {
         self.request = request
         self.parse = { response in
             guard let data: Data = response.data else { return nil }
