@@ -1,4 +1,8 @@
 import XCTest
+#if os(Linux)
+import FoundationNetworking
+#endif
+
 @testable import NetworkKit
 
 class RequestBuilderTests: XCTestCase {

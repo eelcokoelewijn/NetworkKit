@@ -1,5 +1,8 @@
 import XCTest
 @testable import NetworkKit
+#if os(Linux)
+import FoundationNetworking
+#endif
 
 // https://github.com/toddmotto/public-apis
 

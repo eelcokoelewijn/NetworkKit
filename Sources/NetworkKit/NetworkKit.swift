@@ -1,4 +1,8 @@
 import Foundation
+#if os(Linux)
+/// Ref: https://docs.swift.org/swift-book/ReferenceManual/Statements.html#ID538
+import FoundationNetworking
+#endif
 
 public typealias JSONDictionary = [String: AnyObject]
 

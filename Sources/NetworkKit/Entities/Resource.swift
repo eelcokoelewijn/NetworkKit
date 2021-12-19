@@ -1,4 +1,7 @@
 import Foundation
+#if os(Linux)
+import FoundationNetworking
+#endif
 
 public struct Resource<ResourceType: Equatable>{
     let request: URLRequest

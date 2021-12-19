@@ -1,4 +1,7 @@
 import Foundation
+#if os(Linux)
+import FoundationNetworking
+#endif
 
 public typealias RequestHeader = [String: String]
 public typealias RequestParams = [String: Any]
