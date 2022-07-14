@@ -111,7 +111,7 @@ class RequestBuilderTests: XCTestCase {
         let subjectA = RequestBuilder(url: sampleURL).headers(["A": "B"]).build()
         let subjectB = RequestBuilder(url: sampleURL).build()
 
-        XCTAssertNotEqual(subjectA, subjectB)
+        XCTAssertNotEqual(subjectA.allHTTPHeaderFields, subjectB.allHTTPHeaderFields)
     }
 
     func testRequestForEquatabilityWithHeaders() {

@@ -4,6 +4,12 @@ import Foundation
 import FoundationNetworking
 #endif
 
+#if os(Linux)
+    import Glibc
+#else
+    import Darwin
+#endif
+
 public typealias JSONDictionary = [String: AnyObject]
 
 public enum SerializationError: Error {
@@ -21,29 +27,29 @@ public struct NetworkKit {
 
     public init() { }
 
-    public func load<ResourceType>(resource: Resource<ResourceType>,
-                                   completion: @escaping (Result<ResourceType, NetworkError>) -> Void) {
-        send(request: resource.request) { (response) in
-            guard response.data != nil else {
-                if let error: Error = response.error {
-                    completion(.failure(NetworkError.sendingFailed(error.localizedDescription)))
-                } else {
-                    completion(.failure(NetworkError.unknown))
-                }
-                return
+    public func load<ResourceType>(resource: Resource<ResourceType>) async throws -> ResourceType {
+        let response = try await send(request: resource.request)
+        guard let result: ResourceType = resource.parse(response) else {
+            throw NetworkError.parseError
+        }
+        return result
+    }
+
+    @available(*, renamed: "load()")
+    public func load<ResourceType>(resource: Resource<ResourceType>, completion: @escaping (Result<ResourceType, NetworkError>) -> Void) {
+        Task {
+            do {
+                let result:ResourceType = try await load(resource: resource)
+                completion(.success(result))
+            } catch let error {
+                completion(.failure(NetworkError.sendingFailed(error.localizedDescription)))
             }
-            guard let result: ResourceType = resource.parse(response) else {
-                completion(.failure(NetworkError.parseError))
-                return
-            }
-            completion(.success(result))
         }
     }
 
-    private func send(request: URLRequest, completion: @escaping (Response) -> Void) {
-        URLSession.shared.dataTask(with: request) { (data, response, error) in
-            let r: Response = Response(data: data, httpResponse: response as? HTTPURLResponse, error: error)
-            completion(r)
-        }.resume()
+    private func send(request: URLRequest) async throws -> Response {
+        let (data, urlResponse) = try await URLSession.shared.asyncData(for: request);
+        let response: Response = Response(data: data, httpResponse: urlResponse as? HTTPURLResponse,error: nil)
+        return response
     }
 }
