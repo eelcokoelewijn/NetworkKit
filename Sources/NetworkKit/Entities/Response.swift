@@ -8,7 +8,7 @@ struct Response {
     let httpResponse: HTTPURLResponse?
     let error: Error?
     var contentType: ContentType {
-        return ContentType(withType: self.header(withName: Header.contentType))
+        ContentType(withType: header(withName: Header.contentType))
     }
 
     private func header(withName name: String) -> String? {

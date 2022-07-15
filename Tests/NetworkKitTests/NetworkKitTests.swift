@@ -1,5 +1,5 @@
-import XCTest
 @testable import NetworkKit
+import XCTest
 #if os(Linux)
 import FoundationNetworking
 #endif
@@ -13,7 +13,7 @@ class NetworkKitTests: XCTestCase {
     override func setUp() {
         sampleRequest = RequestBuilder(url: URL(string: "https://httpbin.org/uuid")!).build()
         sampleResource = Resource(request: sampleRequest, parseResponse: { data in
-            return try? JSONDecoder().decode(HTTPBinUUID.self, from: data)
+            try? JSONDecoder().decode(HTTPBinUUID.self, from: data)
         })
     }
 
@@ -40,15 +40,15 @@ class NetworkKitTests: XCTestCase {
                 let result = try await subject.load(resource: sampleResource)
                 XCTAssertNotNil(result)
                 exp.fulfill()
-            } catch let error {
+            } catch {
                 throw error
             }
-        } 
+        }
         waitForExpectations(timeout: 5, handler: nil)
     }
 
     static var allTests: [(String, (NetworkKitTests) -> () throws -> Void)] {
-        return [
+        [
             ("testLoadSingleResource", testLoadSingleResource),
             ("testAsyncLoadingSingleResource", testAsyncLoadingSingleResource)
         ]
@@ -59,12 +59,12 @@ struct HTTPBinUUID: Codable {
     let uuid: String
 
     enum CodingKeys: String, CodingKey {
-        case uuid = "uuid"
+        case uuid
     }
 }
 
 extension HTTPBinUUID: Equatable {
     static func == (lhs: HTTPBinUUID, rhs: HTTPBinUUID) -> Bool {
-        return lhs.uuid == rhs.uuid
+        lhs.uuid == rhs.uuid
     }
 }

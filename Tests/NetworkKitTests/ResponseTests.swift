@@ -10,14 +10,16 @@ class ResponseTests: XCTestCase {
     var sampleURL: URL!
     var sampleSuccessStatusCode = 200
     var sampleContentTypeJSONHeader = [Header.contentType: ContentType.applicationJSON.rawValue]
-    
+
     override func setUp() {
         super.setUp()
         sampleURL = URL(string: "http://nu.nl")!
-        sampleHTTPResponse = HTTPURLResponse(url: sampleURL,
-                                             statusCode: sampleSuccessStatusCode,
-                                             httpVersion: nil,
-                                             headerFields: sampleContentTypeJSONHeader)
+        sampleHTTPResponse = HTTPURLResponse(
+            url: sampleURL,
+            statusCode: sampleSuccessStatusCode,
+            httpVersion: nil,
+            headerFields: sampleContentTypeJSONHeader
+        )
     }
 
     func testIfResponseHasContentType() {
@@ -26,7 +28,7 @@ class ResponseTests: XCTestCase {
     }
 
     static var allTests: [(String, (ResponseTests) -> () throws -> Void)] {
-        return [
+        [
             ("testIfResponseHasCorrectContentType", testIfResponseHasContentType)
         ]
     }

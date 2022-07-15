@@ -15,8 +15,10 @@ class RequestBuilderTests: XCTestCase {
 
     override func setUp() {
         sampleURL = URL(string: "http://nu.nl")!
-        sampleHeaders = ["X-Auth": "oAuth",
-                         "Bearer": "xxxxxxxxxxxxx"]
+        sampleHeaders = [
+            "X-Auth": "oAuth",
+            "Bearer": "xxxxxxxxxxxxx"
+        ]
         sampleRequestParams = ["extend": "$User^Profile", "page": 3, "search": "swift url"]
         sampleRequestParamsStringEncoded = "search=swift%20url"
         sampleRequestParamsString = "extend=$User^Profile"
@@ -102,7 +104,7 @@ class RequestBuilderTests: XCTestCase {
     }
 
     func testResourceWithRequest() {
-        let subject = Resource<String>(request: sampleURLRequest) { _ in return nil }
+        let subject = Resource<String>(request: sampleURLRequest) { _ in nil }
 
         XCTAssertEqual(subject.request, sampleURLRequest)
     }
@@ -156,7 +158,7 @@ class RequestBuilderTests: XCTestCase {
     }
 
     static var allTests: [(String, (RequestBuilderTests) -> () throws -> Void)] {
-        return [
+        [
             ("testRequestWithUrl", testRequestWithUrl),
             ("testRequestMethodStringRepresentation", testRequestMethodStringRepresentation),
             ("testRequestWithPostMethod", testRequestWithPostMethod),
@@ -168,5 +170,4 @@ class RequestBuilderTests: XCTestCase {
             ("testResourceForEquatability", testResourceForEquatability)
         ]
     }
-
 }

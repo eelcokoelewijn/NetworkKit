@@ -10,7 +10,7 @@ public final class RequestBuilder {
     private var request: URLRequest
 
     public init(url: URL) {
-        request = URLRequest(url: url)
+        self.request = URLRequest(url: url)
     }
 
     public func method(_ method: RequestMethod) -> Self {
@@ -28,26 +28,32 @@ public final class RequestBuilder {
         return self
     }
 
-    public func body(_ body: RequestParams,
-              withContentType contentType: ContentType = .applicationJSON,
-              encoding: String.Encoding = .utf8) -> Self {
-        request.httpBody = createHttpBodyData(withParams: body,
-                                              forContentType: contentType,
-                                              encoding: encoding)
+    public func body(
+        _ body: RequestParams,
+        withContentType contentType: ContentType = .applicationJSON,
+        encoding: String.Encoding = .utf8
+    ) -> Self {
+        request.httpBody = createHttpBodyData(
+            withParams: body,
+            forContentType: contentType,
+            encoding: encoding
+        )
         return self
     }
 
     public func build() -> URLRequest {
-        return request
+        request
     }
 
     // MARK: Query string construction
 
     private func createURLWithQueryString(withParameter params: RequestParams) -> URL? {
         let queryString = createURLQueryItems(fromParams: params)
-        guard let url = request.url,
-            var urlComponent = URLComponents(url: url, resolvingAgainstBaseURL: true) else {
-                return nil
+        guard
+            let url = request.url,
+            var urlComponent = URLComponents(url: url, resolvingAgainstBaseURL: true)
+        else {
+            return nil
         }
         urlComponent.queryItems = queryString
         guard let urlWitParameters = urlComponent.url else {
@@ -57,23 +63,25 @@ public final class RequestBuilder {
     }
 
     private func createURLQueryItems(fromParams params: RequestParams) -> [URLQueryItem]? {
-        guard params.keys.count > 0 else { return nil }
+        guard !params.keys.isEmpty else { return nil }
         return params
             .compactMap { key, value in
-                return URLQueryItem(name: key, value: String(describing: value))
+                URLQueryItem(name: key, value: String(describing: value))
             }
             .filter { qitem in
                 guard let v: String = qitem.value else { return false }
                 return !v.isEmpty
-        }
+            }
     }
 
     // MARK: Body data construction
 
-    private func createHttpBodyData(withParams params: RequestParams,
-                         forContentType contentType: ContentType,
-                         encoding: String.Encoding) -> Data? {
-        guard params.keys.count > 0 else { return nil }
+    private func createHttpBodyData(
+        withParams params: RequestParams,
+        forContentType contentType: ContentType,
+        encoding: String.Encoding
+    ) -> Data? {
+        guard !params.keys.isEmpty else { return nil }
 
         switch contentType {
         case .applicationJSON:
@@ -85,7 +93,7 @@ public final class RequestBuilder {
 
     private func createStringFromParams(params: RequestParams) -> String? {
         let keyValue: [String] = params.compactMap { key, value in
-            return "\(key)=\(String(describing: value))"
+            "\(key)=\(String(describing: value))"
         }
         return keyValue.joined(separator: "&")
     }
