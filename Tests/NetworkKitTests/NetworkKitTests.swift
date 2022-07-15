@@ -46,13 +46,6 @@ class NetworkKitTests: XCTestCase {
         }
         waitForExpectations(timeout: 5, handler: nil)
     }
-
-    static var allTests: [(String, (NetworkKitTests) -> () throws -> Void)] {
-        [
-            ("testLoadSingleResource", testLoadSingleResource),
-            ("testAsyncLoadingSingleResource", testAsyncLoadingSingleResource)
-        ]
-    }
 }
 
 struct HTTPBinUUID: Codable {

@@ -156,18 +156,4 @@ class RequestBuilderTests: XCTestCase {
         let resourceB = Resource<String>(request: URLRequest(url: URL(string: "http://google.com")!)) { _ in nil }
         XCTAssertNotEqual(resourceA, resourceB)
     }
-
-    static var allTests: [(String, (RequestBuilderTests) -> () throws -> Void)] {
-        [
-            ("testRequestWithUrl", testRequestWithUrl),
-            ("testRequestMethodStringRepresentation", testRequestMethodStringRepresentation),
-            ("testRequestWithPostMethod", testRequestWithPostMethod),
-            ("testRequestWithAuthHeaders", testRequestWithAuthHeaders),
-            ("testResourceWithRequest", testResourceWithRequest),
-            ("testRequestForEquatability", testRequestForNotEquatability),
-            ("testRequestForEquatability", testRequestForEquatabilityWithHeaders),
-            ("testRequestForEquatabilityWithoutHeaders", testRequestForEquatabilityWithoutHeaders),
-            ("testResourceForEquatability", testResourceForEquatability)
-        ]
-    }
 }

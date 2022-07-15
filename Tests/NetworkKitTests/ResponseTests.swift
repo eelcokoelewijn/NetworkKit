@@ -26,10 +26,4 @@ class ResponseTests: XCTestCase {
         let subject = Response(data: nil, httpResponse: sampleHTTPResponse, error: nil)
         XCTAssertEqual(subject.contentType, ContentType.applicationJSON)
     }
-
-    static var allTests: [(String, (ResponseTests) -> () throws -> Void)] {
-        [
-            ("testIfResponseHasCorrectContentType", testIfResponseHasContentType)
-        ]
-    }
 }
