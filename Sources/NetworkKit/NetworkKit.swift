@@ -26,6 +26,7 @@ public enum NetworkError: Error {
 public struct NetworkKit {
     public init() {}
 
+    @available(macOS 10.15, *)
     public func load<ResourceType>(resource: Resource<ResourceType>) async throws -> ResourceType {
         let response = try await send(request: resource.request)
         guard let result: ResourceType = resource.parse(response) else {
@@ -34,7 +35,7 @@ public struct NetworkKit {
         return result
     }
 
-    @available(*, renamed: "load()")
+    @available(macOS 10.15, *)
     public func load<ResourceType>(resource: Resource<ResourceType>, completion: @escaping (Result<ResourceType, NetworkError>) -> Void) {
         Task {
             do {
@@ -46,7 +47,25 @@ public struct NetworkKit {
         }
     }
 
+    #if os(macOS)
+    @available(macOS 10.15, *)
     private func send(request: URLRequest) async throws -> Response {
+        if #available(macOS 12.0, *) {
+            let (data, urlResponse) = try await URLSession.shared.data(for: request)
+            let response = Response(data: data, httpResponse: urlResponse as? HTTPURLResponse, error: nil)
+            return response
+        } else {
+            return try await asyncRequest(request: request)
+        }
+    }
+    #else
+    private func send(request: URLRequest) async throws -> Response {
+        try await asyncRequest(request: request)
+    }
+    #endif
+
+    @available(macOS 10.15, *)
+    private func asyncRequest(request: URLRequest) async throws -> Response {
         let (data, urlResponse) = try await URLSession.shared.asyncData(for: request)
         let response = Response(data: data, httpResponse: urlResponse as? HTTPURLResponse, error: nil)
         return response
