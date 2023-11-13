@@ -17,7 +17,7 @@ public struct Resource<ResourceType: Equatable> {
 }
 
 extension Resource: Equatable {
-    public static func == <ResourceType>(lhs: Resource<ResourceType>, rhs: Resource<ResourceType>) -> Bool {
+    public static func == (lhs: Resource<ResourceType>, rhs: Resource<ResourceType>) -> Bool {
         lhs.request == rhs.request
     }
 }
