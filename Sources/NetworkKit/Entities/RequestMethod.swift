@@ -9,6 +9,7 @@ public enum RequestMethod: String {
     case head = "HEAD"
     case trace = "TRACE"
     case connect = "CONNECT"
+    case patch = "PATCH"
 }
 
 extension RequestMethod: CustomStringConvertible {
@@ -30,6 +31,8 @@ extension RequestMethod: CustomStringConvertible {
             return "TRACE"
         case .connect:
             return "CONNECT"
+        case .patch:
+            return "PATCH"
         }
     }
 }
