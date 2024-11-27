@@ -10,6 +10,12 @@
       "label": "swift-test",
       "type": "shell",
       "command": "swift test"
+    },
+    {
+      "label": "swiftformat",
+      "type": "shell",  
+      "command": "swiftformat ${relativeFile}",
+      "problemMatcher": []
     }
   ]
 }
