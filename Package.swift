@@ -7,9 +7,6 @@ let package = Package(
     products: [
         .library(name: "NetworkKit", targets: ["NetworkKit"])
     ],
-    dependencies: [
-        .package(url: "https://github.com/nicklockwood/SwiftFormat.git", from: "0.35.8")
-    ],
     targets: [
         .target(name: "NetworkKit", dependencies: []),
         .testTarget(name: "NetworkKitTests", dependencies: ["NetworkKit"])
